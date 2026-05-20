@@ -18,6 +18,11 @@
   --muted-light: #D7D5C7;
   --mint: #EAF7C5;
   --neutral: #4A4A40;
+
+  /* Pink theme — containers, borders, accents */
+  --pink-bg: #FDE8EF;
+  --pink-border: #F5B8CE;
+  --pink-dark: #C0526B;
 }
 
 html,
@@ -31,7 +36,8 @@ body {
   font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-/* Buttons */
+
+/* ─── Buttons ─────────────────────────────────────────── */
 .btn-primary {
   background-color: var(--sage-dark);
   color: var(--cream);
@@ -51,17 +57,17 @@ body {
 .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .btn-secondary {
-  background-color: var(--blush);
-  color: var(--bark);
+  background-color: var(--pink-bg);
+  color: var(--pink-dark);
   border-radius: 1rem;
   padding: 0.75rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 600;
   transition: all 0.2s;
   cursor: pointer;
-  border: 0;
+  border: 1px solid var(--pink-border);
 }
-.btn-secondary:hover { background-color: var(--rose); }
+.btn-secondary:hover { background-color: var(--blush); }
 .btn-secondary:active { transform: scale(0.95); }
 
 .btn-outline {
@@ -81,15 +87,17 @@ body {
 .btn-outline:hover { background-color: var(--mint); }
 .btn-outline:active { transform: scale(0.95); }
 
-/* Card */
+/* ─── Card ────────────────────────────────────────────── */
 .card {
   background-color: white;
   border-radius: 1rem;
   box-shadow: 0 2px 12px rgba(44,44,44,0.08);
   overflow: hidden;
+  /* Pink border on all cards */
+  border: 1px solid var(--pink-border);
 }
 
-/* Input */
+/* ─── Input ───────────────────────────────────────────── */
 .input-field {
   width: 100%;
   background-color: var(--parchment);
@@ -104,7 +112,22 @@ body {
 .input-field::placeholder { color: var(--muted); }
 .input-field:focus { border-color: var(--sage); }
 
-/* Nav items */
+/*
+  Search bar fix:
+  The search icon is absolutely positioned inside a relative wrapper.
+  Apply padding-left to the input so the placeholder text never sits
+  under the icon. Use this pattern in JSX:
+
+    <div className="relative">
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <input className="input-field search-input" placeholder="Search…" />
+    </div>
+*/
+.search-input {
+  padding-left: 2.5rem; /* 40px — clears the 17px icon + left-4 (16px) offset */
+}
+
+/* ─── Nav items ───────────────────────────────────────── */
 .nav-item {
   display: flex;
   flex-direction: column;
@@ -117,10 +140,10 @@ body {
   background: none;
   border: none;
 }
-.nav-item:hover { color: var(--sage); }
-.nav-item.active { color: var(--sage); background-color: rgba(212,237,212,0.4); border-radius: 0.75rem; }
+.nav-item:hover { color: var(--pink-dark); }
+.nav-item.active { color: var(--pink-dark); background-color: var(--pink-bg); border-radius: 0.75rem; }
 
-/* Tags */
+/* ─── Tags ────────────────────────────────────────────── */
 .tag {
   background-color: var(--parchment);
   color: var(--bark);
@@ -138,7 +161,7 @@ body {
   border-color: var(--sage-dark);
 }
 
-/* Status badge */
+/* ─── Status badge ────────────────────────────────────── */
 .status-active {
   font-size: 0.7rem;
   background-color: var(--mint);
@@ -148,33 +171,33 @@ body {
   font-weight: 500;
 }
 
-/* Scrollbar */
+/* ─── Scrollbar ───────────────────────────────────────── */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Animations */
+/* ─── Animations ──────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  to   { opacity: 1; transform: scale(1); }
 }
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
 
-.animate-fadeIn { animation: fadeIn 0.3s ease forwards; }
+.animate-fadeIn  { animation: fadeIn  0.3s ease forwards; }
 .animate-slideUp { animation: slideUp 0.4s ease forwards; }
 .animate-scaleIn { animation: scaleIn 0.3s ease forwards; }
-.animate-spin { animation: spin 0.7s linear infinite; }
+.animate-spin    { animation: spin    0.7s linear infinite; }
 
-/* Shadow utilities */
+/* ─── Shadow utilities ────────────────────────────────── */
 .shadow-card { box-shadow: 0 2px 12px rgba(44,44,44,0.08); }
 .shadow-soft { box-shadow: 0 4px 24px rgba(44,44,44,0.06); }
