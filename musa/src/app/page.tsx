@@ -507,7 +507,7 @@ function LoginPage({ setPage }: { setPage: (p: Page) => void }) {
         name: backendUser.name || backendUser.full_name || backendUser.username || "User",
         username: backendUser.username || backendUser.email || "user",
         email: backendUser.email || form.email,
-        isSeller: backendUser.is_seller ?? backendUser.isSeller ?? true,
+        isSeller: backendUser.is_seller ?? backendUser.isSeller ?? false,
         memberSince: backendUser.member_since || backendUser.memberSince || "2026",
         earnings: Number(backendUser.earnings || 0),
         rating: Number(backendUser.rating || 100),
@@ -1091,7 +1091,7 @@ function CartPage({ setPage }: { setPage: (p: Page) => void }) {
 }
 
 function StudioRegistration({ setPage }: { setPage: (p: Page) => void }) {
-  const { setStudioRegistered } = useApp();
+  const { setStudioRegistered, user, login } = useApp();
 
   const [form, setForm] = useState({
     studioName: "",
@@ -1113,6 +1113,16 @@ function StudioRegistration({ setPage }: { setPage: (p: Page) => void }) {
     });
 
     setStudioRegistered(true);
+
+login({
+  ...user,
+  studio: {
+    id: 1,
+    name: form.studioName,
+    craft_type: form.craftType,
+    description: form.description,
+  },
+});
   } catch (err) {
     alert("Studio registration failed. Make sure you are logged in.");
   }
@@ -1339,7 +1349,7 @@ function StudioPage({ setPage }: { setPage: (p: Page) => void }) {
           className="text-3xl font-bold mb-1"
           style={{ color: "var(--cream)", fontFamily: "Georgia,serif" }}
         >
-          Studio 138
+          {user?.studio?.name || "My Studio"}
         </h1>
 
         <p className="text-sm mb-5" style={{ color: "rgba(255,254,248,0.75)" }}>
@@ -1432,6 +1442,7 @@ function CreateListingPage({ setPage }: { setPage: (p: Page) => void }) {
   });
 
   const [loading, setLoading] = useState(false);
+  const { setProducts, user } = useApp();
 
   const handleImageFile = (file: File) => {
     const reader = new FileReader();
@@ -1455,7 +1466,7 @@ function CreateListingPage({ setPage }: { setPage: (p: Page) => void }) {
     try {
       setLoading(true);
 
-      await apiFetch("/products/", {
+      const created = await apiFetch("/products/", {
         method: "POST",
         body: JSON.stringify({
           title: form.title,
@@ -1466,7 +1477,13 @@ function CreateListingPage({ setPage }: { setPage: (p: Page) => void }) {
           active: true,
         }),
       });
-
+setProducts((prev: Product[]) => [
+  mapBackendProduct({
+    ...created,
+    studio_name: user?.studio?.name || user?.username,
+  }),
+  ...prev,
+]);
       setPage("published");
     } catch (err: any) {
       alert(err.message || "Could not publish product.");
