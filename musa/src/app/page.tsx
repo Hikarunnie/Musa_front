@@ -612,20 +612,20 @@ function SignupPage({ setPage }: { setPage: (p: Page) => void }) {
   const { login } = useApp();
 
   const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
+  name: "",
+  username: "",
+  email: "",
+  password: "",
+});
 
   const [err, setErr] = useState("");
   const isEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
   const handle = async () => {
-    if (!form.username || !form.email || !form.password) {
-      setErr("Please fill in all fields.");
-      return;
+    if (!form.name || !form.username || !form.email || !form.password) {
+       setErr("Please fill in all fields.");
+       return;
     }
-
     if (form.username.trim().length < 3) {
       setErr("Username must be at least 3 characters.");
       return;
@@ -647,6 +647,7 @@ function SignupPage({ setPage }: { setPage: (p: Page) => void }) {
       const data = await apiFetch("/auth/register/", {
         method: "POST",
         body: JSON.stringify({
+          name: form.name,
           username: form.username,
           email: form.email,
           password: form.password,
@@ -707,6 +708,12 @@ function SignupPage({ setPage }: { setPage: (p: Page) => void }) {
           )}
 
           <div className="space-y-3">
+            <input
+  className="input-field"
+  placeholder="Full name"
+  value={form.name}
+  onChange={(e) => setForm({ ...form, name: e.target.value })}
+/>
             <input
               className="input-field"
               placeholder="Username"
