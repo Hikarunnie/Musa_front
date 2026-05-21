@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Nemesis — Craft Market",
+  title: "Musa — Craft Market",
   description: "Discover and sell unique handmade goods",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

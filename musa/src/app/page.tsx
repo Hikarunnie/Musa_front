@@ -127,18 +127,6 @@ function mapBackendProduct(item: any): Product {
   };
 }
 
-function CottonBallLogo({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
-      <circle cx="14" cy="22" r="8" fill="#FFFEF8" opacity="0.9" />
-      <circle cx="26" cy="22" r="8" fill="#FFFEF8" opacity="0.9" />
-      <circle cx="20" cy="16" r="9" fill="#FFFEF8" />
-      <circle cx="20" cy="26" r="6" fill="#FFFEF8" opacity="0.85" />
-      <rect x="17" y="28" width="6" height="7" rx="2" fill="#a8c46a" />
-    </svg>
-  );
-}
-
 function Shell({
   children,
   page,
@@ -185,12 +173,7 @@ function Shell({
         >
           <div className="px-5 py-6 border-b" style={{ borderColor: "var(--pink-border)" }}>
             <div className="flex items-center gap-3">
-              <div
-                className="w-11 h-11 rounded-2xl flex items-center justify-center"
-                style={{ background: "var(--sage-dark)" }}
-              >
-                <CottonBallLogo size={26} />
-              </div>
+              <img src="/logo.png"  alt="Musa logo" className="w-14 h-14 object-contain rounded-2xl"/>
               <div>
                 <p
                   className="font-bold text-xl"
@@ -477,16 +460,28 @@ function LoginPage({ setPage }: { setPage: (p: Page) => void }) {
   const { login } = useApp();
 
   const [form, setForm] = useState({
-    email: "demo@musa.com",
-    password: "password",
+    email: "",
+    password: "",
   });
 
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const isEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+
   const handle = async () => {
     if (!form.email || !form.password) {
-      setErr("Please fill in all fields.");
+      setErr("Please enter email and password.");
+      return;
+    }
+
+    if (!isEmail(form.email)) {
+      setErr("Please enter a valid email.");
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setErr("Password must be at least 8 characters.");
       return;
     }
 
@@ -504,6 +499,10 @@ function LoginPage({ setPage }: { setPage: (p: Page) => void }) {
 
       const backendUser = data.user || data;
 
+      if (data.access || data.token) {
+        localStorage.setItem("musa_token", data.access || data.token);
+      }
+
       login({
         name: backendUser.name || backendUser.full_name || backendUser.username || "User",
         username: backendUser.username || backendUser.email || "user",
@@ -514,13 +513,9 @@ function LoginPage({ setPage }: { setPage: (p: Page) => void }) {
         rating: Number(backendUser.rating || 100),
       });
 
-      if (data.access || data.token) {
-        localStorage.setItem("musa_token", data.access || data.token);
-      }
-
       setPage("explore");
     } catch (error) {
-      setErr("Login failed. Check email/password or backend server.");
+      setErr("Incorrect email or password.");
     } finally {
       setLoading(false);
     }
@@ -530,13 +525,11 @@ function LoginPage({ setPage }: { setPage: (p: Page) => void }) {
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-sm animate-scaleIn">
         <div className="text-center mb-8">
-          <div
-            className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-soft"
-            style={{ background: "var(--sage-dark)" }}
-          >
-            <CottonBallLogo size={32} />
-          </div>
-
+         <img
+  src="/logo.png"
+  alt="Musa logo"
+  className="w-20 h-20 object-contain mx-auto mb-4"
+/>
           <h1
             className="text-3xl font-bold"
             style={{ color: "var(--charcoal)", fontFamily: "Georgia,serif" }}
@@ -591,7 +584,11 @@ function LoginPage({ setPage }: { setPage: (p: Page) => void }) {
             />
           </div>
 
-          <button onClick={handle} disabled={loading} className="btn-primary w-full mt-5 py-3">
+          <button
+            onClick={handle}
+            disabled={loading}
+            className="btn-primary w-full mt-5 py-3"
+          >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </div>
@@ -615,56 +612,76 @@ function SignupPage({ setPage }: { setPage: (p: Page) => void }) {
   const { login } = useApp();
 
   const [form, setForm] = useState({
-    name: "",
     username: "",
     email: "",
     password: "",
   });
 
+  const [err, setErr] = useState("");
+  const isEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+
   const handle = async () => {
-  if (!form.name || !form.email || !form.password) return;
-
-  try {
-    const data = await apiFetch("/auth/register/", {
-      method: "POST",
-      body: JSON.stringify({
-        name: form.name,
-        email: form.email,
-        password: form.password,
-      }),
-    });
-
-    if (data.access || data.token) {
-      localStorage.setItem("musa_token", data.access || data.token);
+    if (!form.username || !form.email || !form.password) {
+      setErr("Please fill in all fields.");
+      return;
     }
 
-    login({
-      name: data.user?.name || form.name,
-      username: form.username || form.name.toLowerCase().replace(/\s/g, "_"),
-      email: data.user?.email || form.email,
-      isSeller: false,
-      memberSince: "2026",
-      earnings: 0,
-      rating: 0,
-    });
+    if (form.username.trim().length < 3) {
+      setErr("Username must be at least 3 characters.");
+      return;
+    }
 
-    setPage("explore");
-  } catch (err: any) {
-  alert(err.message || "Signup failed");
-}
-};
+    if (!isEmail(form.email)) {
+      setErr("Please enter a valid email.");
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setErr("Password must be at least 8 characters.");
+      return;
+    }
+
+    try {
+      setErr("");
+
+      const data = await apiFetch("/auth/register/", {
+        method: "POST",
+        body: JSON.stringify({
+          username: form.username,
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      if (data.access || data.token) {
+        localStorage.setItem("musa_token", data.access || data.token);
+      }
+
+      login({
+        name: data.user?.username || form.username,
+        username: data.user?.username || form.username,
+        email: data.user?.email || form.email,
+        isSeller: false,
+        memberSince: "2026",
+        earnings: 0,
+        rating: 0,
+      });
+
+      setPage("explore");
+    } catch (err: any) {
+      setErr("Could not create account. Try another email or username.");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-sm animate-scaleIn">
         <div className="text-center mb-8">
-          <div
-            className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-soft"
-            style={{ background: "var(--sage-dark)" }}
-          >
-            <CottonBallLogo size={32} />
-          </div>
-
+          <img
+  src="/logo.png"
+  alt="Musa logo"
+  className="w-20 h-20 object-contain mx-auto mb-4"
+/>
           <h1
             className="text-2xl font-bold"
             style={{ color: "var(--charcoal)", fontFamily: "Georgia,serif" }}
@@ -677,14 +694,19 @@ function SignupPage({ setPage }: { setPage: (p: Page) => void }) {
           className="rounded-3xl p-6 shadow-soft"
           style={{ background: "white", border: "1px solid var(--pink-border)" }}
         >
-          <div className="space-y-3">
-            <input
-              className="input-field"
-              placeholder="Full name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
+          {err && (
+            <p
+              className="text-sm mb-4 px-3 py-2 rounded-xl"
+              style={{
+                color: "var(--bark)",
+                background: "rgba(255,212,212,0.45)",
+              }}
+            >
+              {err}
+            </p>
+          )}
 
+          <div className="space-y-3">
             <input
               className="input-field"
               placeholder="Username"
@@ -706,6 +728,7 @@ function SignupPage({ setPage }: { setPage: (p: Page) => void }) {
               placeholder="Password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
+              onKeyDown={(e) => e.key === "Enter" && handle()}
             />
           </div>
 
@@ -887,12 +910,21 @@ function CartPage({ setPage }: { setPage: (p: Page) => void }) {
               Browse handmade goods to fill it up
             </p>
 
+            <div className="flex items-center justify-center gap-3 mt-4">
             <button
-              onClick={() => setPage("explore")}
-              className="btn-primary mt-4 gap-2 py-2.5 px-4"
-            >
+               onClick={() => setPage("explore")}
+               className="btn-primary gap-2 py-2.5 px-4"
+                      >
               <Compass size={15} /> Browse Crafts
-            </button>
+           </button>
+
+             <button
+                onClick={() => setPage("login")}
+                className="btn-outline py-2.5 px-4"
+  >
+    Sign In
+  </button>
+</div>
           </div>
         ) : (
           <>
@@ -1226,7 +1258,24 @@ function StudioPage({ setPage }: { setPage: (p: Page) => void }) {
   if (!user) {
     return (
       <div>
-        <TopBar title="My Studio" subtitle="Creator Workspace" />
+        <TopBar
+  title="My Studio"
+  subtitle="Creator Workspace"
+  actions={
+    !user && (
+      <button
+        onClick={() => setPage("login")}
+        className="hidden sm:block px-4 py-2 rounded-xl text-sm font-semibold"
+        style={{
+          background: "var(--pink-bg)",
+          color: "var(--pink-dark)",
+        }}
+      >
+        Sign in
+      </button>
+    )
+  }
+/>
 
         <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
           <div
