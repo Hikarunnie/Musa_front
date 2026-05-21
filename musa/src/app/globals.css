@@ -91,7 +91,7 @@ body {
 
 /* ─── Card ────────────────────────────────────────────── */
 .card {
-  background-color: white;
+  background-color: var(--blush);
   border-radius: 1rem;
   box-shadow: 0 2px 12px rgba(44,44,44,0.08);
   overflow: hidden;
